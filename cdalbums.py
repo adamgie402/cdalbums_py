@@ -1,40 +1,41 @@
 import sqlite3
 
-
 connenction = sqlite3.connect('cdalbums.db')
 cursor = connenction.cursor() # za pomocą kursora można wprowadzać zmiany do bazy danych
 
-# funkcja wprowadzanie danych - przygotowanie polecenia SQL z danymi:
-# uwaga wartość null spowoduje podstawienie automatycznego numeru w kolumnie ID
-
 def selectAction():
     print()
-    print("Select action: ")
-    print("r - read database ")
+    print("Select desired action: ")
+    print("a - read all database ")
+    # print("r - read record ")
+    # print("f - find in database")
     print("i - insert new record to database")
-    print("d - delete selected record in database")
-    print("f - find in database")
-    print("c - close program")
+    print("d - delete selected record from database")
+    # print("e - export to csv")
+    print("x - close program")
     print()
-    action = input("?? ")
-    if action == "r" or action == "i":
-        if action == "i":
-            insertRecord()
-        else:
-            readAllRecords()
+    action = input("input action charter and press enter --> ")
+    if action == "a":
+        readAllRecords()
+    # elif action == "r":
+    #     id = input("Input record ID --> ")
+    #     readRecordID(id)
+    elif action == "d":
+        id = input("Enter ID to delete --> ")
+        deleteRecordID(id)
+    elif action == "i":
+        insertRecord()
+    elif action == "x":
+        closeProgram()
     else:
-        print()  
-        print("Inwalid entry...")
-        print()   
+        print("Wrong charter, press enter...")
+        input()
         selectAction()
 
 
 def readAllRecords():
     cursor.execute('''SELECT * from albums''')
     records = cursor.fetchall()
-    print()
-    print("Total rows: ", len(records))
-    print("Printing each row.....")
     print()
     #wyświetlenie danych za pomocą pętli
     for row in records:
@@ -43,52 +44,82 @@ def readAllRecords():
         print("Title: ", row[2])
         print("Year: ", row[3])
         print()
+    print("Total rows: ", len(records))
     selectAction()
 
-def insertRecord():
+
+def readRecordID(id):
+    readId = id
     print()
-    print("Adding new record to CD database.....")
-    id = "null"
+    cursor.execute('SELECT * from albums WHERE id = ' + readId)
+    record = cursor.fetchall()
+    for row in record:
+        print("ID: ", row[0])
+        print("Artist: ", row[1])
+        print("Title: ", row[2])
+        print("Year: ", row[3])
+        print()
+        
+
+def insertRecord():
+    def saveRecord():
+        query = f'INSERT INTO albums VALUES({dbid}, "{artist}", "{title}", {year})'
+        cursor.execute(query)
+        connenction.commit()
+        print()
+        print("Record stored...")
+        print("Press enter...")
+        input()
+        selectAction()
+    # funkcja wprowadzanie danych - przygotowanie polecenia SQL z danymi:
+    # uwaga wartość null spowoduje podstawienie automatycznego numeru w kolumnie ID
+    dbid = "null"
     artist = input("Enter Artist: ")
     title = input("Enter Title: ")
-    year = input("Enter Year: ")
-    query = f'INSERT INTO albums VALUES({id}, "{artist}", "{title}", {year})'
-    print(query)
-    cursor.execute(query)
-    connenction.commit()
-    print("record stored sucesfully!")
+    year = input("Enter album year: ")
+    try:
+        year = int(year)
+        saveRecord()
+    except:
+        print()
+        print("invalid album year value...")
+        print("press enter...")
+        input()
+        selectAction()
+
+
+def deleteRecordID(id):
+    delId = id
+    readRecordID(delId)
     print()
-    selectAction()
+    print('Are You sure to delete this record?')
+    print('y - yes')
+    print('n - no')
+    print()
+    delAction = input('Input action charter and press enter --> ')
+    if delAction == 'y':
+        cursor.execute('DELETE from albums WHERE id = ' + delId)
+        connenction.commit()
+        print()
+        print("Record deleted, press enter...")
+        input()
+        print()
+        selectAction()
+    else:
+        selectAction()
+
+def closeProgram():
+        connenction.close()
+        print("Program closed. Thank You.")
+        exit()
+
 
 selectAction()
 
+
 connenction.close()
 
-#tworzenie tabeli 
-# cursor.execute('''CREATE TABLE albums(
-#     id INTEGER PRIMARY KEY,
-#     Artist TEXT, 
-#     Title TEXT, 
-#     Year INT
-#     )''')
 
-
-# usuwanie całej tabeli
-# cursor.execute("DROP TABLE albums")
-# connenction.commit()
-
-
-# wprowadzanie danych - przygotowanie polecenia SQL z danymi:
-# uwaga wartość null spowoduje podstawienie automatycznego numeru w kolumnie ID
-# cursor.execute('''INSERT INTO albums VALUES(null, 'Coldplay', 'Music Of The Spheres', 2021)''')
-# connenction.commit()
-
-
-# poprawianie danych
-# cursor.execute('''UPDATE albums SET Year = 1976 WHERE title = "Taxi Driver"''')
-# connenction.commit()
-
-#odczytywanie danych:
 
 
 
