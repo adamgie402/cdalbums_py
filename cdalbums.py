@@ -38,12 +38,15 @@ def readAllRecords():
     records = cursor.fetchall()
     print()
     #wyświetlenie danych za pomocą pętli
+    i = 1
     for row in records:
-        print("ID: ", row[0])
+        print("Item: ", i)
         print("Artist: ", row[1])
         print("Title: ", row[2])
         print("Year: ", row[3])
+        print("Album ID: ", row[0])
         print()
+        i = i + 1
     print("Total rows: ", len(records))
     selectAction()
 
@@ -54,38 +57,49 @@ def readRecordID(id):
     cursor.execute('SELECT * from albums WHERE id = ' + readId)
     record = cursor.fetchall()
     for row in record:
-        print("ID: ", row[0])
         print("Artist: ", row[1])
         print("Title: ", row[2])
         print("Year: ", row[3])
+        print("Album ID: ", row[0])
         print()
         
 
 def insertRecord():
-    def saveRecord():
+    # funkcja wprowadzanie danych - przygotowanie polecenia SQL z danymi:
+    # uwaga wartość null spowoduje podstawienie automatycznego numeru w kolumnie ID
+    
+    def getYear():
+        # pętla sprawdzająca czy rok to liczba int - jeśli tak zwraca year, jeśli nie to wraca na początek pętli
+        while True:
+            year = input("Enter album year: ")
+            try:
+                int(year)
+                return year
+            except ValueError:
+                print()
+                print("invalid album year value - try again...")
+                continue #kontynuacja pętli
+    
+    def storeData():
+        print("!! storing data !!")
+        print(f'data to store: {artist}, {title}, {year}')
         query = f'INSERT INTO albums VALUES({dbid}, "{artist}", "{title}", {year})'
         cursor.execute(query)
+        # cursor.execute('INSERT INTO albums VALUES(?, ?, ?, ?)',(dbid, artist, title, year))
         connenction.commit()
         print()
         print("Record stored...")
-        print("Press enter...")
-        input()
+        # print("Press enter...")
+        # year = None
+        # input()
         selectAction()
-    # funkcja wprowadzanie danych - przygotowanie polecenia SQL z danymi:
-    # uwaga wartość null spowoduje podstawienie automatycznego numeru w kolumnie ID
+
     dbid = "null"
     artist = input("Enter Artist: ")
     title = input("Enter Title: ")
-    year = input("Enter album year: ")
-    try:
-        year = int(year)
-        saveRecord()
-    except:
-        print()
-        print("invalid album year value...")
-        print("press enter...")
-        input()
-        selectAction()
+    year = getYear()
+    storeData()
+
 
 
 def deleteRecordID(id):
@@ -102,10 +116,12 @@ def deleteRecordID(id):
         connenction.commit()
         print()
         print("Record deleted, press enter...")
-        input()
         print()
         selectAction()
     else:
+        print()
+        print("Record are NOT deleted...")
+        print()
         selectAction()
 
 def closeProgram():
