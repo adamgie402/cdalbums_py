@@ -6,7 +6,7 @@ cursor = connenction.cursor() # za pomocą kursora można wprowadzać zmiany do 
 def selectAction():
     print()
     print("Select desired action: ")
-    print("a - read all database ")
+    print("a - read all records")
     # print("r - read record ")
     # print("f - find in database")
     print("i - insert new record to database")
@@ -21,14 +21,14 @@ def selectAction():
     #     id = input("Input record ID --> ")
     #     readRecordID(id)
     elif action == "d":
-        id = input("Enter ID to delete --> ")
+        id = input("Enter Album ID to delete --> ")
         deleteRecordID(id)
     elif action == "i":
         insertRecord()
     elif action == "x":
         closeProgram()
     else:
-        print("Wrong charter, press enter...")
+        print("Wrong command, press enter...")
         input()
         selectAction()
 
@@ -73,9 +73,12 @@ def insertRecord():
         while True:
             year = input("Enter album year: ")
             try:
-                int(year)
-                return year
-            except ValueError:
+                int(year) # check if year can be int
+                year = int(year) #convert year to int
+                # print(type(year))
+                if year > 1900 and year < 2022: # check if year is more than 1900
+                    return year
+            except:
                 print()
                 print("invalid album year value - try again...")
                 continue #kontynuacja pętli
