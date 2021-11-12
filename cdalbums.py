@@ -3,12 +3,16 @@ import sqlite3
 connenction = sqlite3.connect('cdalbums.db')
 cursor = connenction.cursor() # za pomocą kursora można wprowadzać zmiany do bazy danych
 
+global sortBy
+sortBy = "artist"
+
 def selectAction():
     print()
     print("Select desired action: ")
     print("a - read all records")
     # print("r - read record ")
     # print("f - find in database")
+    print("s - set sorting: sort by " + sortBy)
     print("i - insert new record to database")
     print("d - delete selected record from database")
     # print("e - export to csv")
@@ -20,6 +24,8 @@ def selectAction():
     # elif action == "r":
     #     id = input("Input record ID --> ")
     #     readRecordID(id)
+    elif action == "s":
+        selectSortMethod()
     elif action == "d":
         id = input("Enter Album ID to delete --> ")
         deleteRecordID(id)
@@ -32,12 +38,56 @@ def selectAction():
         input()
         selectAction()
 
+def selectSortMethod():
+    global sortBy
+    print()
+    print("Setup sorting method:")
+    print("a - sort by Artist")
+    print("t - sort by Title")
+    print("y - sort by Year")
+    print("i - sort by Album ID")
+    print()
+    select = input("Set sorting by --> ")
+    if select == "a":
+        sortBy = "artist"
+    elif select == "t":
+        sortBy = "title"         
+    elif select == "y":
+        sortBy = "year"       
+    elif select == "i":
+        sortBy = "id"
+    else:
+        sortBy = "artist"
+    print()
+    print("!! sortowanie !!" + sortBy)
+    selectAction()
+
 
 def readAllRecords():
+    def sortByArtist(e):
+        return e[1]
+    def sortByTitle(e):
+        return e[2]
+    def sortByYear(e):
+        return e[3]
+    def sortById(e):
+        return e[0]
+
     cursor.execute('''SELECT * from albums''')
     records = cursor.fetchall()
-    print()
+    # print(records)
+    
+    if sortBy == "artist":
+        records.sort(reverse=False, key=sortByArtist)
+    elif sortBy == "title":
+        records.sort(reverse=False, key=sortByTitle)    
+    elif sortBy == "year":
+        records.sort(reverse=False, key=sortByYear)    
+    elif sortBy == "id":
+        records.sort(reverse=False, key=sortById)    
+    
     #wyświetlenie danych za pomocą pętli
+    print()
     i = 1
     for row in records:
         print("Item: ", i)
@@ -47,7 +97,7 @@ def readAllRecords():
         print("Album ID: ", row[0])
         print()
         i = i + 1
-    print("Total rows: ", len(records))
+    print("Total records in database: ", len(records))
     selectAction()
 
 
@@ -65,7 +115,7 @@ def readRecordID(id):
         
 
 def insertRecord():
-    # funkcja wprowadzanie danych - przygotowanie polecenia SQL z danymi:
+    # funkcja wprowadzanie danych - przygotowanxie polecenia SQL z danymi:
     # uwaga wartość null spowoduje podstawienie automatycznego numeru w kolumnie ID
     
     def getYear():
@@ -130,6 +180,8 @@ def deleteRecordID(id):
 def closeProgram():
         connenction.close()
         print("Program closed. Thank You.")
+        print("Press enter...")
+        input(prompt)
         exit()
 
 
