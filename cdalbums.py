@@ -18,17 +18,14 @@ def selectAction():
     # print("e - export to csv")
     print("x - close program")
     print()
-    action = input("input action charter and press enter --> ")
+    action = input("Input action charter and press enter --> ")
+    print()
     if action == "a":
         readAllRecords()
-    # elif action == "r":
-    #     id = input("Input record ID --> ")
-    #     readRecordID(id)
     elif action == "s":
         selectSortMethod()
     elif action == "d":
-        id = input("Enter Album ID to delete --> ")
-        deleteRecordID(id)
+        deleteRecordID()
     elif action == "i":
         insertRecord()
     elif action == "x":
@@ -59,7 +56,8 @@ def selectSortMethod():
     else:
         sortBy = "artist"
     print()
-    print("!! sortowanie !!" + sortBy)
+    print("Sorting is set by " + sortBy + "... ")
+    print()
     selectAction()
 
 
@@ -106,6 +104,9 @@ def readRecordID(id):
     print()
     cursor.execute('SELECT * from albums WHERE id = ' + readId)
     record = cursor.fetchall()
+    if record == []:
+        print("This record don't exist!")
+        selectAction()
     for row in record:
         print("Artist: ", row[1])
         print("Title: ", row[2])
@@ -134,8 +135,7 @@ def insertRecord():
                 continue #kontynuacja pętli
     
     def storeData():
-        print("!! storing data !!")
-        print(f'data to store: {artist}, {title}, {year}')
+        # print(f'data to store: {artist}, {title}, {year}')
         query = f'INSERT INTO albums VALUES({dbid}, "{artist}", "{title}", {year})'
         cursor.execute(query)
         # cursor.execute('INSERT INTO albums VALUES(?, ?, ?, ?)',(dbid, artist, title, year))
@@ -154,8 +154,17 @@ def insertRecord():
     storeData()
 
 
-
-def deleteRecordID(id):
+def deleteRecordID():
+    while True:
+        id = input("Enter Album ID to delete (cancel to stop) --> ")
+        try:
+            int(id)
+            break
+        except:
+            if id == "cancel":
+                selectAction()
+            else:
+                continue
     delId = id
     readRecordID(delId)
     print()
@@ -168,7 +177,7 @@ def deleteRecordID(id):
         cursor.execute('DELETE from albums WHERE id = ' + delId)
         connenction.commit()
         print()
-        print("Record deleted, press enter...")
+        print("Record deleted...")
         print()
         selectAction()
     else:
@@ -179,14 +188,11 @@ def deleteRecordID(id):
 
 def closeProgram():
         connenction.close()
-        print("Program closed. Thank You.")
-        print("Press enter...")
-        input(prompt)
+        print("Program closing, press enter...")
+        input()
         exit()
 
-
 selectAction()
-
 
 connenction.close()
 
